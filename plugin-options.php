@@ -30,6 +30,9 @@
 			//add options to this array as 'option_name' => 'option_value'
 			$this->opts = array(
 				$this->prefix . 'version' => $this->v_num
+				$this->prefix . 'options' => array(
+
+				)
 			);
 		}
 

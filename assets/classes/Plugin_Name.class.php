@@ -43,6 +43,13 @@
 				$this->remove_caps();
 			}
 
+			public function uninstall() {
+				//call methods to remove tables and unset version number
+				//other plugin data should have been removed on deactivation
+				$this->unset_options(true);
+				$this->unset_tables();
+			}
+
 			//add capabilities
 			private function add_caps() {
 				//get roles object
@@ -95,7 +102,7 @@
 			}
 
 			//this method creates any necessary tables
-			public function set_tables() {
+			private function set_tables() {
 				//loop through each table
 				foreach($this->options->tables as $name => $sql) {
 					//check to see if we need to create the table
@@ -112,21 +119,39 @@
 				}
 			}
 
+			//this method removes tables from the DB
+			private function unset_tables() {
+				foreach($this->options->tables as $name => $sql) {
+					$this->db->query("DROP table `" . $name . "`");
+				}
+			}
+
 			//this method sets any necessary options
 			private function set_options() {
 				//iterate through our options
 				foreach($this->options->opts as $name => $val) {
+					if($name == $this->fix_name('options')) {
+						$val = json_encode($val);
+					}
 					//run the option through our update method
 					$this->update_option($name, $val);
 				}
 			}
 
 			//this method removes any necessary options
-			private function unset_options() {
-				//iterate through our options
-				foreach($this->options->opts as $name => $val) {
-					//remove the option
-					delete_option($name);
+			public function unset_options($uninstall = false) {
+				if(!$uninstall) {
+					//iterate through our options
+					foreach($this->options->opts as $name => $val) {
+						//don't remove the version number so we can still check versions on updates
+						//we'll remove it in uninstall.php
+						if($name != $this->fix_name('version')) {
+							//remove the option
+							delete_option($name);
+						}
+					}
+				} else {
+					delete_option($this->fix_name('version'));
 				}
 			}
 
@@ -154,7 +179,7 @@
 				$good_to_go = false;
 
 				//if this is our version number
-				if($name === $this->options->opts[$this->options->prefix . 'version']) {
+				if($name === $this->options->opts[$this->fix_name('version')]) {
 
 					//IMPORTANT: call necessary update functions for each version here
 
@@ -168,6 +193,29 @@
 				}
 
 				return $good_to_go;
+			}
+
+			//create a prefixed version of a table name or option name
+			private function fix_name($short_name = null) {
+				//see if short_name was provided
+				if(isset($short_name)) {
+					//if short_name doesn't start with _ and prefix doesn't end with _
+					if(substr(0, -1, $this->options->prefix) != '_' && substr(0, 1, $short_name) != '_') {
+						//add an _ between prefix and short_name
+						$name = $this->options->prefix . '_' . $short_name;
+					//if short_name starts with _ and prefix ends with _
+					} elseif(substr(0, -1, $this->options->prefix) == '_' && substr(0, 1, $short_name) == '_') {
+						//remove _ from short_name and prepend prefix
+						$name = $this->options->prefix . substr(0, 1, $short_name);
+					//if only one has an _
+					} else {
+						//concatenate the prefix and short_name
+						$name = $this->options->prefix . $short_name;
+					}
+
+					//return the newly generated name
+					return $name;
+				}
 			}
 
 			//WP_DEBUG logging method
