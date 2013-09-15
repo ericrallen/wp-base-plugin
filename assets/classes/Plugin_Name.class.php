@@ -43,11 +43,21 @@
 				$this->remove_caps();
 			}
 
+			//our plug-in uninstall
 			public function uninstall() {
 				//call methods to remove tables and unset version number
 				//other plugin data should have been removed on deactivation
 				$this->unset_options(true);
 				$this->unset_tables();
+			}
+
+			//get current options
+			public function get_options() {
+				//get options, use defaults from plugin-options.php if they aren't found
+				$opts = get_option($this->fix_name('options'), $this->options->opts['options']);
+
+				//decode the JSON string into an array and save it over our $this->options->opts array
+				$this->options->opts = json_decode($opts, true);
 			}
 
 			//add capabilities
@@ -64,7 +74,7 @@
 					//this gives us an array of capabilities and the capability they require
 					foreach($this->options->caps as $req => $caps) {
 						//iterate through our capabilities
-						foreach($caps as $cap) {
+						foreach($caps as $key => $cap) {
 							//if this role has the required capability
 							//but not the capability we want to add
 							if(!$role_obj->has_cap($cap) && $role_obj->has_cap($req)) {
@@ -90,7 +100,7 @@
 					//this gives us an array of capabilities and the capability they require
 					foreach($this->options->caps as $req => $caps) {
 						//iterate through our capabilities
-						foreach($caps as $cap) {
+						foreach($caps as $key => $cap) {
 							//if this role has our capability
 							if($role_obj->has_cap($cap)) {
 								//remove the capability
