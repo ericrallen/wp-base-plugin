@@ -5,7 +5,7 @@
 
 		class Plugin_Name {
 
-			public $current = array();
+			public $settings = array();
 
 			public function __construct($opts = null) {
 				global $wpdb;
@@ -62,7 +62,7 @@
 				$opts = get_option($this->fix_name('options'), $this->options->opts['options']);
 
 				//decode the JSON string into an array and save it to $this->current
-				$this->current = json_decode($opts, true);
+				$this->settings = json_decode($opts, true);
 			}
 
 			//add capabilities
