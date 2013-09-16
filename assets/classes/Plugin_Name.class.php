@@ -5,6 +5,8 @@
 
 		class Plugin_Name {
 
+			public $current = array();
+
 			public function __construct($opts = null) {
 				global $wpdb;
 
@@ -23,6 +25,9 @@
 						//store the Plugin_Name_Options object
 						//for reference to capabilties, tables, and options
 						$this->options = new Plugin_Name_Options();
+
+						//get options from DB and store them
+						$this->get_options();
 					}
 				}
 			}
@@ -56,8 +61,8 @@
 				//get options, use defaults from plugin-options.php if they aren't found
 				$opts = get_option($this->fix_name('options'), $this->options->opts['options']);
 
-				//decode the JSON string into an array and save it over our $this->options->opts array
-				$this->options->opts = json_decode($opts, true);
+				//decode the JSON string into an array and save it to $this->current
+				$this->current = json_decode($opts, true);
 			}
 
 			//add capabilities

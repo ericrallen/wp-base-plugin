@@ -22,13 +22,12 @@
 			$this->set_options();
 			$this->set_capabilities();
 			$this->set_tables();
-			$this->set_scripts();
 		}
 
 		//set up options array
 		private function set_options() {
 			$this->opts = array(
-				$this->prefix . 'version' => $this->v_num
+				$this->prefix . 'version' => $this->v_num,
 				$this->prefix . 'options' => array(
 
 					//add options to this array as 'option_name' => 'option_value'
