@@ -6,6 +6,7 @@
 		class Plugin_Name {
 
 			public $settings = array();
+			public $tables = array();
 
 			public function __construct($opts = null) {
 				global $wpdb;
@@ -25,11 +26,14 @@
 						//store the Plugin_Name_Options object
 						//for reference to capabilties, tables, and options
 						$this->options = new Plugin_Name_Options();
-
-						//get options from DB and store them
-						$this->get_options();
 					}
 				}
+
+				//get options from DB and store them
+				$this->get_settings();
+
+				//map table names to slugs so we can refer to them more easily
+				$this->map_tables();
 			}
 
 			//our plug-in activation
@@ -44,20 +48,23 @@
 			public function deactivate() {
 				//call methods to remove options and capabilities
 				//we don't remove the tables here, they are removed in uninstall.php
-				$this->unset_options();
 				$this->remove_caps();
 			}
 
 			//our plug-in uninstall
 			public function uninstall() {
-				//call methods to remove tables and unset version number
-				//other plugin data should have been removed on deactivation
-				$this->unset_options(true);
-				$this->unset_tables();
+				if(!defined('WP_UNINSTALL_PLUGIN')) {
+					exit();
+				} else {
+					//call methods to remove tables and unset version number
+					//other plugin data should have been removed on deactivation
+					$this->unset_options();
+					$this->unset_tables();
+				}
 			}
 
 			//get current options
-			public function get_options() {
+			public function get_settings() {
 				//get options, use defaults from plugin-options.php if they aren't found
 				$opts = get_option($this->fix_name('options'), $this->options->opts['options']);
 
@@ -116,12 +123,20 @@
 				}
 			}
 
+			private function map_tables() {
+				//loop through tables and store them as an array of slug => table_name for easy reference in other methods
+				foreach($this->options->tables as $slug => $sql) {
+					//now we can refer to our tables as $this->tables['slug'];
+					$this->tables[$slug] = $this->fix_name($slug);
+				}
+			}
+
 			//this method creates any necessary tables
 			private function set_tables() {
 				//loop through each table
-				foreach($this->options->tables as $name => $sql) {
+				foreach($this->options->tables as $slug => $sql) {
 					//check to see if we need to create the table
-					$this->check_DB($name, $sql);
+					$this->check_DB($this->fix_name($slug), $sql);
 				}
 			}
 
@@ -136,8 +151,8 @@
 
 			//this method removes tables from the DB
 			private function unset_tables() {
-				foreach($this->options->tables as $name => $sql) {
-					$this->db->query("DROP table `" . $name . "`");
+				foreach($this->options->tables as $slug => $sql) {
+					$this->db->query("DROP table `" . $this->fix_name . "`");
 				}
 			}
 
@@ -154,19 +169,15 @@
 			}
 
 			//this method removes any necessary options
-			public function unset_options($uninstall = false) {
-				if(!$uninstall) {
-					//iterate through our options
-					foreach($this->options->opts as $name => $val) {
-						//don't remove the version number so we can still check versions on updates
-						//we'll remove it in uninstall.php
-						if($name != $this->fix_name('version')) {
-							//remove the option
-							delete_option($name);
-						}
+			public function unset_options() {
+				//iterate through our options
+				foreach($this->options->opts as $name => $val) {
+					//don't remove the version number so we can still check versions on updates
+					//we'll remove it in uninstall.php
+					if($name != $this->fix_name('version')) {
+						//remove the option
+						delete_option($name);
 					}
-				} else {
-					delete_option($this->fix_name('version'));
 				}
 			}
 

@@ -51,16 +51,14 @@
 
 		//set up table array
 		private function set_tables() {
-			//first define the table name
-			$table_name = $this->prefix . 'table_name';
-
-			//then set the table name as a key for the $this->tables array
+			//set the table name as a key for the $this->tables array
 			//and add the MySQL CREATE statement as the value for that key
-			$this->tables[$table_name] = "CREATE TABLE `" . $table_name . "` (
+			$this->tables['main'] = "CREATE TABLE `" . $this->prefix . 'main' . "` (
 					`ID` int(15) NOT NULL AUTO_INCREMENT,
 					`column_name` varchar(255),
 					PRIMARY KEY (`ID`)
-				) ENGINE=InnoDB DEFAULT CHARSET=latin1";
+				) ENGINE=InnoDB DEFAULT CHARSET=latin1"
+			;
 		}
 	}
 

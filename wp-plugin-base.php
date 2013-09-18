@@ -1,14 +1,17 @@
 <?php
+/*
+Plugin Name: Plug-In Name
+Plugin URI: http://www.example.com/plug-in-name/
+Description: Simple plug-in base
+Version: 0.0.1
+Author: Author Name
+Author URI: http://www.example.com/
+License: MIT
+*/
 
-	/*
-	Plugin Name: Plug-In Name
-	Plugin URI: http://www.example.com/plug-in-name/
-	Description: Simple plug-in base
-	Version: 0.0.1
-	Author: Author Name
-	Author URI: http://www.example.com/
-	License: GPL2
-	*/
+	if(!defined('ABSPATH')) {
+		exit();
+	}
 
 	/* =======================================================
 		NOTE:  Anywhere that you see 'Plugin_Name' or
@@ -42,21 +45,22 @@
 	}
 
 	/* =======================================================
-		Open the plugin-options.php file in 
-		this directory and add any tables, options, or
-		capabilities that you need added.
+		Open /assets/classes/Plugin_Options.class.php 
+		and add any tables, options, or capabilities 
+		that you need added
 	======================================================= */
 
-	// INCLUDES
-	require_once(PLUGIN_NAME_DIR . '/plugin-options.php');
+	// OPTIONS
+	include_once(PLUGIN_NAME_DIR . 'assets/classes/Plugin_Options.class.php');
 
 	/* =======================================================
-		Open /assets/classes/plugin_name.class.php
+		Open /assets/classes/Plugin_Name.class.php
 		and begin adding any functionality you need. This 
-		class has some default methods you may find useful.
+		class has some default methods you may find useful
 	======================================================= */
 
-	require_once(PLUGIN_NAME_DIR . '/assets/classes/plugin.class.php');
+	//LOGIC
+	include_once(PLUGIN_NAME_DIR . '/assets/classes/Plugin_Name.class.php');
 
 	if(class_exists('Plugin_Name_Options') && class_exists('Plugin_Name')) {
 		$plugin_options = new Plugin_Name_Options();
@@ -66,6 +70,9 @@
 		register_activation_hook(__FILE__, array($plugin, 'activate'));
 
 		register_deactivation_hook(__FILE__, array($plugin, 'deactivate'));
+
+		register_uninstall_hook(__FILE__, array($plugin, 'uninstall'));
+
 
 		/* =======================================================
 			I like to keep my actions bound here instead of
