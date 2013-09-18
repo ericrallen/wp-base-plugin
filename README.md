@@ -123,4 +123,4 @@ A few notes about deploying:
 * The script will create tags for you based on the version number in your plugin header comment and the release version in your `readme.txt` so make sure they are the same.
 * The script will push the master branch and latest tag to GitHub so you don't have to worry about pushing before you deploy.
 * WordPress (or SVN, not sure which) doesn't seem to like letters in its version numbers, so I stick with semantic versioning format:  `0.0.1`, `0.0.2`, etc.
-* You should add .deploy.sh to your .gitignore ([I recommend globally](http://stackoverflow.com/questions/7335420/global-git-ignore#answer-7335487)) so you don't give anyone access to deploy your plugin.
+* You should add `deploy.sh` to your `.gitignore` ([I recommend globally](http://stackoverflow.com/questions/7335420/global-git-ignore#answer-7335487)) so you don't give anyone access to deploy your plugin.
