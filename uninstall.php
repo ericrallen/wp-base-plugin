@@ -14,7 +14,7 @@
 
 		$plugin_options = new Plugin_Name_Options();
 
-		$plugin = new Plugin_Name($plugin_options);
+		$plugin_name = new Plugin_Name($plugin_options);
 
-		$plugin->uninstall();
+		$plugin_name->uninstall();
 	}

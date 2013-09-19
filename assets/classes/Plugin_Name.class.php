@@ -46,14 +46,14 @@
 
 			//our plug-in deactivation
 			public function deactivate() {
-				//call methods to remove options and capabilities
-				//we don't remove the tables here, they are removed in uninstall.php
+				//call methods to remove capabilities
+				//we don't remove the tables or options here, they are removed in uninstall.php
 				$this->remove_caps();
 			}
 
 			//our plug-in uninstall
 			public function uninstall() {
-				//call methods to remove tables and unset version number
+				//call methods to remove tables and unset options
 				//other plugin data should have been removed on deactivation
 				$this->unset_options();
 				$this->unset_tables();
