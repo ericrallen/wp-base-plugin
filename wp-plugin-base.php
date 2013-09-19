@@ -65,13 +65,11 @@ License: MIT
 	if(class_exists('Plugin_Name_Options') && class_exists('Plugin_Name')) {
 		$plugin_options = new Plugin_Name_Options();
 
-		$plugin = new Plugin_Name($plugin_options);
+		$plugin_name = new Plugin_Name($plugin_options);
 
-		register_activation_hook(__FILE__, array($plugin, 'activate'));
+		register_activation_hook(__FILE__, array($plugin_name, 'activate'));
 
-		register_deactivation_hook(__FILE__, array($plugin, 'deactivate'));
-
-		register_uninstall_hook(__FILE__, array($plugin, 'uninstall'));
+		register_deactivation_hook(__FILE__, array($plugin_name, 'deactivate'));
 
 
 		/* =======================================================

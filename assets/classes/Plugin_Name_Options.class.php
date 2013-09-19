@@ -29,7 +29,7 @@
 			$this->opts = array(
 				$this->prefix . 'version' => $this->v_num,
 				$this->prefix . 'options' => array(
-
+					'test' => 'Testing'
 					//add options to this array as 'option_name' => 'option_value'
 					//this allows us to only store two options in the table
 					//one will keep our version number and the other will keep a JSON encoded
@@ -61,5 +61,3 @@
 			;
 		}
 	}
-
-?>

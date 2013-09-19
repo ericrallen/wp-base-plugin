@@ -53,23 +53,19 @@
 
 			//our plug-in uninstall
 			public function uninstall() {
-				if(!defined('WP_UNINSTALL_PLUGIN')) {
-					exit();
-				} else {
-					//call methods to remove tables and unset version number
-					//other plugin data should have been removed on deactivation
-					$this->unset_options();
-					$this->unset_tables();
-				}
+				//call methods to remove tables and unset version number
+				//other plugin data should have been removed on deactivation
+				$this->unset_options();
+				$this->unset_tables();
 			}
 
 			//get current options
 			public function get_settings() {
 				//get options, use defaults from plugin-options.php if they aren't found
-				$opts = get_option($this->fix_name('options'), $this->options->opts['options']);
+				$opts = get_option($this->fix_name('options'), $this->options->opts[$this->fix_name('options')]);
 
 				//decode the JSON string into an array and save it to $this->current
-				$this->settings = json_decode($opts, true);
+				$this->settings = $opts;
 			}
 
 			//add capabilities
@@ -172,12 +168,8 @@
 			public function unset_options() {
 				//iterate through our options
 				foreach($this->options->opts as $name => $val) {
-					//don't remove the version number so we can still check versions on updates
-					//we'll remove it in uninstall.php
-					if($name != $this->fix_name('version')) {
-						//remove the option
-						delete_option($name);
-					}
+					//remove the option
+					delete_option($name);
 				}
 			}
 
@@ -226,13 +218,13 @@
 				//see if short_name was provided
 				if(isset($short_name)) {
 					//if short_name doesn't start with _ and prefix doesn't end with _
-					if(substr(0, -1, $this->options->prefix) != '_' && substr(0, 1, $short_name) != '_') {
+					if(substr($this->options->prefix, -1, 1) != '_' && substr($short_name, 0, 1) != '_') {
 						//add an _ between prefix and short_name
 						$name = $this->options->prefix . '_' . $short_name;
 					//if short_name starts with _ and prefix ends with _
-					} elseif(substr(0, -1, $this->options->prefix) == '_' && substr(0, 1, $short_name) == '_') {
+					} elseif(substr($this->options->prefix, -1, 1) == '_' && substr($short_name, 0, 1) == '_') {
 						//remove _ from short_name and prepend prefix
-						$name = $this->options->prefix . substr(0, 1, $short_name);
+						$name = $this->options->prefix . substr($short_name, 0, 1);
 					//if only one has an _
 					} else {
 						//concatenate the prefix and short_name
