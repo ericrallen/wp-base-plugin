@@ -65,7 +65,11 @@
 				$opts = get_option($this->fix_name('options'), $this->options->opts[$this->fix_name('options')]);
 
 				//decode the JSON string into an array and save it to $this->current
-				$this->settings = $opts;
+				if(is_string($opts)) {
+					$this->settings = json_decode($opts, true);
+				} else {
+					$this->settings = $opts;
+				}
 			}
 
 			//add capabilities
