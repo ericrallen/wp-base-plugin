@@ -41,7 +41,7 @@ License: MIT
 
 	//this is the url to the plug-in's directory
 	if(!defined("PLUGIN_NAME_URL")) {
-		define("PLUGIN_NAME_URL", WP_PLUGIN_URL . '/' . DONATOMETER);
+		define("PLUGIN_NAME_URL", WP_PLUGIN_URL . '/' . PLUGIN_NAME);
 	}
 
 	/* =======================================================
