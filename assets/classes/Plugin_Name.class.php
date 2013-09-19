@@ -127,7 +127,7 @@
 				//loop through tables and store them as an array of slug => table_name for easy reference in other methods
 				foreach($this->options->tables as $slug => $sql) {
 					//now we can refer to our tables as $this->tables['slug'];
-					$this->tables[$slug] = $this->fix_name($slug);
+					$this->tables[$slug] = $this->fix_name($slug, true);
 				}
 			}
 
@@ -136,7 +136,7 @@
 				//loop through each table
 				foreach($this->options->tables as $slug => $sql) {
 					//check to see if we need to create the table
-					$this->check_DB($this->fix_name($slug), $sql);
+					$this->check_DB($this->fix_name($slug, true), $sql);
 				}
 			}
 
@@ -152,7 +152,7 @@
 			//this method removes tables from the DB
 			private function unset_tables() {
 				foreach($this->options->tables as $slug => $sql) {
-					$this->db->query("DROP table `" . $this->fix_name($slug) . "`");
+					$this->db->query("DROP table `" . $this->fix_name($slug, true) . "`");
 				}
 			}
 
@@ -160,9 +160,21 @@
 			private function set_options() {
 				//iterate through our options
 				foreach($this->options->opts as $name => $val) {
+					//if this is our options array
 					if($name == $this->fix_name('options')) {
+						//iterate through each value
+						foreach($val as $key => $value) {
+							//check it against the current settings
+							if($this->settings[$key] != $value) {
+								//if the setting was different, store the current setting, not our default
+								$val[$key] = $this->settings[$key];
+							}
+						}
+
+						//json encode our options array into a string
 						$val = json_encode($val);
 					}
+
 					//run the option through our update method
 					$this->update_option($name, $val);
 				}
@@ -218,7 +230,7 @@
 			}
 
 			//create a prefixed version of a table name or option name
-			private function fix_name($short_name = null) {
+			private function fix_name($short_name = null, $db = false) {
 				//see if short_name was provided
 				if(isset($short_name)) {
 					//if short_name doesn't start with _ and prefix doesn't end with _
@@ -233,6 +245,11 @@
 					} else {
 						//concatenate the prefix and short_name
 						$name = $this->options->prefix . $short_name;
+					}
+
+					//check if this is a table and needs the $wpdb->prefix added
+					if($db) {
+						$name = $this->db->prefix . $name;
 					}
 
 					//return the newly generated name

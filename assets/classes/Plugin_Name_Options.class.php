@@ -19,6 +19,10 @@
 
 		//initialize options
 		public function __construct() {
+			global $wpdb;
+
+			$this->db = $wpdb;
+
 			$this->set_options();
 			$this->set_capabilities();
 			$this->set_tables();
@@ -53,11 +57,17 @@
 		private function set_tables() {
 			//set the table name as a key for the $this->tables array
 			//and add the MySQL CREATE statement as the value for that key
-			$this->tables['main'] = "CREATE TABLE `" . $this->prefix . 'main' . "` (
+			$this->tables['main'] = "CREATE TABLE `" . $this->table_name('main') . "` (
 					`ID` int(15) NOT NULL AUTO_INCREMENT,
 					`column_name` varchar(255),
 					PRIMARY KEY (`ID`)
 				) ENGINE=InnoDB DEFAULT CHARSET=latin1"
 			;
+		}
+
+		private function table_name($slug) {
+			$new_slug = $this->db->prefix . $this->prefix . $slug;
+
+			return $new_slug;
 		}
 	}
