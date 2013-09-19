@@ -148,7 +148,7 @@
 			//this method removes tables from the DB
 			private function unset_tables() {
 				foreach($this->options->tables as $slug => $sql) {
-					$this->db->query("DROP table `" . $this->fix_name . "`");
+					$this->db->query("DROP table `" . $this->fix_name($slug) . "`");
 				}
 			}
 
