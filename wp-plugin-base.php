@@ -51,7 +51,7 @@ License: MIT
 	======================================================= */
 
 	// OPTIONS
-	include_once(PLUGIN_NAME_DIR . 'assets/classes/Plugin_Options.class.php');
+	include_once(PLUGIN_NAME_DIR . '/assets/classes/Plugin_Name_Options.class.php');
 
 	/* =======================================================
 		Open /assets/classes/Plugin_Name.class.php
