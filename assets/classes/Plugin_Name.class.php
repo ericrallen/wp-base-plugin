@@ -1,33 +1,15 @@
 <?php
 
 	//class for our plug-in logic
-	if(!class_exists('Plugin_Name')) {
+	if(!class_exists('Plugin_Name') && class_exists('Plugin_Name_Options')) {
 
-		class Plugin_Name {
+		class Plugin_Name extends Plugin_Name_Options {
 
-			public $settings = array();
-			public $tables = array();
+			private $table_map;
 
-			public function __construct($opts = null) {
-				global $wpdb;
-
-				//store a reference to $wpdb as $this->db
-				//so we don't have to keep retyping 'global $wpdb;'
-				$this->db = $wpdb;
-
-				//if options were provided
-				if(is_object($opts)) {
-					//store the options for reference
-					$this->options = $opts;
-				//if they weren't provided
-				} else {
-					//check if the Plugin_Name_Options class exists
-					if(class_exists('Plugin_Name_Options')) {
-						//store the Plugin_Name_Options object
-						//for reference to capabilties, tables, and options
-						$this->options = new Plugin_Name_Options();
-					}
-				}
+			public function __construct() {
+				//run Plugin_Name_Options constructor
+				parent::__construct();
 
 				//get options from DB and store them
 				$this->get_settings();
@@ -84,7 +66,7 @@
 
 					//iterate through capabilities in the options
 					//this gives us an array of capabilities and the capability they require
-					foreach($this->options->caps as $req => $caps) {
+					foreach($this->caps as $req => $caps) {
 						//iterate through our capabilities
 						foreach($caps as $key => $cap) {
 							//if this role has the required capability
@@ -110,7 +92,7 @@
 
 					//iterate through capabilities in the options
 					//this gives us an array of capabilities and the capability they require
-					foreach($this->options->caps as $req => $caps) {
+					foreach($this->caps as $req => $caps) {
 						//iterate through our capabilities
 						foreach($caps as $key => $cap) {
 							//if this role has our capability
@@ -125,16 +107,16 @@
 
 			private function map_tables() {
 				//loop through tables and store them as an array of slug => table_name for easy reference in other methods
-				foreach($this->options->tables as $slug => $sql) {
-					//now we can refer to our tables as $this->tables['slug'];
-					$this->tables[$slug] = $this->fix_name($slug, true);
+				foreach($this->tables as $slug => $sql) {
+					//now we can refer to our tables as $this->table_map['slug'];
+					$this->table_map[$slug] = $this->fix_name($slug, true);
 				}
 			}
 
 			//this method creates any necessary tables
 			private function set_tables() {
 				//loop through each table
-				foreach($this->options->tables as $slug => $sql) {
+				foreach($this->tables as $slug => $sql) {
 					//check to see if we need to create the table
 					$this->check_DB($this->fix_name($slug, true), $sql);
 				}
@@ -151,7 +133,7 @@
 
 			//this method removes tables from the DB
 			private function unset_tables() {
-				foreach($this->options->tables as $slug => $sql) {
+				foreach($this->tables as $slug => $sql) {
 					$this->db->query("DROP table `" . $this->fix_name($slug, true) . "`");
 				}
 			}
@@ -159,7 +141,7 @@
 			//this method sets any necessary options
 			private function set_options() {
 				//iterate through our options
-				foreach($this->options->opts as $name => $val) {
+				foreach($this->options as $name => $val) {
 					//if this is our options array
 					if($name == $this->fix_name('options')) {
 						//iterate through each value
@@ -183,7 +165,7 @@
 			//this method removes any necessary options
 			public function unset_options() {
 				//iterate through our options
-				foreach($this->options->opts as $name => $val) {
+				foreach($this->options as $name => $val) {
 					//remove the option
 					delete_option($name);
 				}
@@ -213,11 +195,14 @@
 				$good_to_go = false;
 
 				//if this is our version number
-				if($name === $this->options->opts[$this->fix_name('version')]) {
+				if($name === $this->options[$this->fix_name('version')]) {
 
 					//IMPORTANT: call necessary update functions for each version here
 
 					$good_to_go = true;
+
+				//add other elseif branches based on other option updates that might require custom update functionality here
+
 				//otherwise
 				} else {
 					//if we've got some values in there, we're good
@@ -227,63 +212,6 @@
 				}
 
 				return $good_to_go;
-			}
-
-			//create a prefixed version of a table name or option name
-			private function fix_name($short_name = null, $db = false) {
-				//see if short_name was provided
-				if(isset($short_name)) {
-					//if short_name doesn't start with _ and prefix doesn't end with _
-					if(substr($this->options->prefix, -1, 1) != '_' && substr($short_name, 0, 1) != '_') {
-						//add an _ between prefix and short_name
-						$name = $this->options->prefix . '_' . $short_name;
-					//if short_name starts with _ and prefix ends with _
-					} elseif(substr($this->options->prefix, -1, 1) == '_' && substr($short_name, 0, 1) == '_') {
-						//remove _ from short_name and prepend prefix
-						$name = $this->options->prefix . substr($short_name, 0, 1);
-					//if only one has an _
-					} else {
-						//concatenate the prefix and short_name
-						$name = $this->options->prefix . $short_name;
-					}
-
-					//check if this is a table and needs the $wpdb->prefix added
-					if($db) {
-						$name = $this->db->prefix . $name;
-					}
-
-					//return the newly generated name
-					return $name;
-				}
-			}
-
-			//WP_DEBUG logging method
-			public function log($message, $namespace = null) {
-				//if debugging is enabled
-				if(WP_DEBUG) {
-					//if we weren't given a namespace
-					if(!is_string($namespace)) {
-						//use the one defined in the class initialization
-						$namespace = $this->options->namespace;
-					//if we were
-					} else {
-						//convert it to caps so it's easily recognizable in the debug.log
-						$namespace = strtoupper($namespace);
-					}
-
-					//append a colon and a space
-					$namespace .= ': ';
-
-					//if the message is an object or an array
-					if(is_array($message) || is_object($message)) {
-						//print out the object or array structure
-						error_log($namespace . print_r($message, true));
-					//if it isn't
-					} else {
-						//just echo out the message
-						error_log($namespace . $message);
-					}
-				}
 			}
 
 		}

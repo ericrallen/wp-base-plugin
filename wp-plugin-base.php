@@ -23,7 +23,7 @@ License: MIT
 	// GLOBAL PATHS
 
 	/* =======================================================
-		Define any global paths that you might 
+		Define any global paths that you might
 		want to use later on. This makes it easier to refer
 		to paths and URLs that are relative to your plug-in.
 		Feel free to add more.
@@ -45,8 +45,8 @@ License: MIT
 	}
 
 	/* =======================================================
-		Open /assets/classes/Plugin_Options.class.php 
-		and add any tables, options, or capabilities 
+		Open /assets/classes/Plugin_Options.class.php
+		and add any tables, options, or capabilities
 		that you need added
 	======================================================= */
 
@@ -55,17 +55,16 @@ License: MIT
 
 	/* =======================================================
 		Open /assets/classes/Plugin_Name.class.php
-		and begin adding any functionality you need. This 
+		and begin adding any functionality you need. This
 		class has some default methods you may find useful
 	======================================================= */
 
 	//LOGIC
 	include_once(PLUGIN_NAME_DIR . '/assets/classes/Plugin_Name.class.php');
 
-	if(class_exists('Plugin_Name_Options') && class_exists('Plugin_Name')) {
-		$plugin_options = new Plugin_Name_Options();
+	if(class_exists('Plugin_Name')) {
 
-		$plugin_name = new Plugin_Name($plugin_options);
+		$plugin_name = new Plugin_Name();
 
 		register_activation_hook(__FILE__, array($plugin_name, 'activate'));
 
