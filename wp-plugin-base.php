@@ -47,7 +47,8 @@ License: MIT
 	/* =======================================================
 		Open /assets/classes/Plugin_Options.class.php
 		and add any tables, options, or capabilities
-		that you need added
+		that you need added. This class has some methods
+		for handling prefixing names and logging errors.
 	======================================================= */
 
 	// OPTIONS
@@ -62,6 +63,11 @@ License: MIT
 	//LOGIC
 	include_once(PLUGIN_NAME_DIR . '/assets/classes/Plugin_Name.class.php');
 
+	/* =======================================================
+		Any classes you add should extend the Plugin_Options_Name
+		class so that you have access to the prefixing and logging methods.
+	======================================================= */
+
 	if(class_exists('Plugin_Name')) {
 
 		$plugin_name = new Plugin_Name();
@@ -69,7 +75,6 @@ License: MIT
 		register_activation_hook(__FILE__, array($plugin_name, 'activate'));
 
 		register_deactivation_hook(__FILE__, array($plugin_name, 'deactivate'));
-
 
 		/* =======================================================
 			I like to keep my actions bound here instead of
