@@ -1,73 +1,131 @@
 <?php
 
-	//options for our plug-in
-	class Plugin_Name_Options {
-		//IMPORTANT: Update the version number here whenever you release a new version
-		public $v_num = '0.0.1';
+	if(!class_exists('Plugin_Name_Options')) {
 
-		//prefix for option names, table names, and capability names
-		public $prefix = 'plugin_name_';
+		//options for our plug-in
+		class Plugin_Name_Options {
 
-		//namespace for any Debug messages
-		public $namespace = 'PLUGIN NAME';
+			//IMPORTANT: Update the version number here whenever you release a new version
+			protected $v_num = '0.0.1';
 
-		//initialize vars for tables, options, and capabilities
-		public $tables;
-		public $opts;
-		public $caps;
-		public $load;
+			//prefix for option names, table names, and capability names
+			protected $prefix = 'plugin_name_';
 
-		//initialize options
-		public function __construct() {
-			global $wpdb;
+			//namespace for any Debug messages
+			protected $namespace = 'PLUGIN NAME';
 
-			$this->db = $wpdb;
+			//initialize vars for plugin options
+			protected $db;
+			protected $options;
+			protected $caps;
+			protected $tables;
 
-			$this->set_options();
-			$this->set_capabilities();
-			$this->set_tables();
-		}
+			//initialize options
+			public function __construct() {
+				//reference global $wpdb class instance
+				global $wpdb;
 
-		//set up options array
-		private function set_options() {
-			$this->opts = array(
-				$this->prefix . 'version' => $this->v_num,
-				$this->prefix . 'options' => array(
-					'test' => 'Testing'
-					//add options to this array as 'option_name' => 'option_value'
-					//this allows us to only store two options in the table
-					//one will keep our version number and the other will keep a JSON encoded
-					//string of all of our other options
+				//store reference to $wpdb so we don't have to declare it constantly
+				$this->db = $wpdb;
 
-				)
-			);
-		}
+				$this->plugin_options();
+				$this->plugin_capabilities();
+				$this->plugin_tables();
+			}
 
-		//set up capability array
-		private function set_capabilities() {
-			//add capabilities to this array as 'required_capability' => 'capability_to_grant'
-			$this->caps = array(
-				'manage_options' => array(
-					$this->prefix . 'capability'
-				)
-			);
-		}
+			//set up options array
+			protected function plugin_options() {
+				$this->options = array(
+					$this->fix_name('version') => $this->v_num,
+					$this->fix_name('options') => array(
+						'test' => 'Testing'
+						//add options to this array as 'option_name' => 'option_value'
+						//this allows us to only store two options in the table
+						//one will keep our version number and the other will keep a JSON encoded
+						//string of all of our other options
 
-		//set up table array
-		private function set_tables() {
-			//set the table name as a key for the $this->tables array
-			//and add the MySQL CREATE statement as the value for that key
-			$this->tables['main'] = "CREATE TABLE `" . $this->table_name('main') . "` (
-					`ID` int(15) NOT NULL AUTO_INCREMENT,
-					`column_name` varchar(255),
-					PRIMARY KEY (`ID`)
-				) ENGINE=InnoDB DEFAULT CHARSET=latin1"
-			;
-		}
+					)
+				);
+			}
 
-		private function table_name($slug) {
-			$new_slug = $this->db->prefix . $this->prefix . $slug;
+			//set up capability array
+			protected function plugin_capabilities() {
+				$this->caps  = array(
+					'manage_options' => array(
+						$this->fix_name( 'capability')
+					)
+					//add capabilities to this array as 'required_capability' => array('capability_to_grant')
+				);
+			}
 
-			return $new_slug;
+			//set up table array
+			protected function plugin_tables() {
+				//set the table name as a key for the $this->tables array
+				//and add the MySQL CREATE statement as the value for that key
+				$this->tables = array(
+					'main' => "CREATE TABLE `" . $this->fix_name('main', true) . "` (
+							`ID` int(15) NOT NULL AUTO_INCREMENT,
+							`column_name` varchar(255),
+							PRIMARY KEY (`ID`)
+						) ENGINE=InnoDB DEFAULT CHARSET=latin1"
+				);
+			}
+
+			//create a prefixed version of a table name or option name
+			protected function fix_name($short_name = null, $db = false) {
+				//see if short_name was provided
+				if(isset($short_name)) {
+					//if short_name doesn't start with _ and prefix doesn't end with _
+					if(substr($this->prefix, -1, 1) != '_' && substr($short_name, 0, 1) != '_') {
+						//add an _ between prefix and short_name
+						$name = $this->prefix . '_' . $short_name;
+					//if short_name starts with _ and prefix ends with _
+					} elseif(substr($this->prefix, -1, 1) == '_' && substr($short_name, 0, 1) == '_') {
+						//remove _ from short_name and prepend prefix
+						$name = $this->prefix . substr($short_name, 0, 1);
+					//if only one has an _
+					} else {
+						//concatenate the prefix and short_name
+						$name = $this->prefix . $short_name;
+					}
+
+					//check if this is a table and needs the $wpdb->prefix added
+					if($db) {
+						$name = $this->db->prefix . $name;
+					}
+
+					//return the newly generated name
+					return $name;
+				}
+			}
+
+			//WP_DEBUG logging method
+			protected function log($message, $namespace = null) {
+				//if debugging is enabled
+				if(WP_DEBUG) {
+					//if we weren't given a namespace
+					if(!is_string($namespace)) {
+						//use the one defined in the class initialization
+						$namespace = $this->namespace;
+					//if we were
+					} else {
+						//convert it to caps so it's easily recognizable in the debug.log
+						$namespace = strtoupper($namespace);
+					}
+
+					//append a colon and a space
+					$namespace .= ': ';
+
+					//if the message is an object or an array
+					if(is_array($message) || is_object($message)) {
+						//print out the object or array structure
+						error_log($namespace . print_r($message, true));
+					//if it isn't
+					} else {
+						//just echo out the message
+						error_log($namespace . $message);
+					}
+				}
+			}
 		}
 	}
