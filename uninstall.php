@@ -12,9 +12,7 @@
 			include_once(dirname(__FILE__) . '/assets/classes/Plugin_Name.class.php');
 		}
 
-		$plugin_options = new Plugin_Name_Options();
-
-		$plugin_name = new Plugin_Name($plugin_options);
+		$plugin_name = new Plugin_Name();
 
 		$plugin_name->uninstall();
 	}
