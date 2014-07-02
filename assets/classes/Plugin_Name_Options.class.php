@@ -52,7 +52,7 @@
 			protected function plugin_capabilities() {
 				$this->caps  = array(
 					'manage_options' => array(
-						$this->fix_name( 'capability')
+						$this->fix_name('capability')
 					)
 					//add capabilities to this array as 'required_capability' => array('capability_to_grant')
 				);
