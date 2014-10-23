@@ -5,6 +5,23 @@ A simple plugin base for WordPress plugins that provides some boilerplate functi
 
 Read the comments in the code for explanations and steps for turning the boilerplate into your own plugin.
 
+Getting Started
+============
+
+1. Rename the `wp-plugin-base` directory and `wp-plugin-base.php` file with the name of your plugin replacing `wp-plugin-base`.
+2. Rename the `Plugin_Name.class.php` and `Plugin_Name_Options.class.php` files in the `assets/classes/` directory with the name of your plugin replacing `Plugin_Name`.
+3. Edit the plugin comment meta information found at the top of the file previously named `wp-plugin-base.php`.
+4. Anywhere that you see `Plugin_Name` or any derivation of that, you should change it to the actual name of your plug-in and follow the capitalization scheme that was used. I generally do a Find/Replace on all files in this plugin's directory. (Examples:  PLUGIN_NAME, plugin_name, Plugin_Name, PLUGIN NAME)
+5. Define any global paths that you might need in the `wp-plugin-base.php` file. This makes it easier to refer to paths and URLs that are relative to your plug-in. It already defines `PLUGIN_NAME_DIR` and `PLUGIN_NAME_URL` for easily including other files you add to the plugin's directory.
+6. Open the file previously named `assets/classes/Plugin_Name_Options.class.php` and add any tables, options, or capabilities that you need. This class has some methods for handling prefixing names and logging errors to the `debug.log` file, as well.
+7. Open the file previously named `assets/classes/Plugin_Name.class.php` and begin adding any functionality you need. This class has some default methods for setitng up tables, options, and capabilities that you may find useful. It also includes a method to facilitate performing any database maintenance necessary when updating your plugin's version.
+8. Add any classes that you need to the `assets/classes/` directory, and for better integration with our basic methods and options, make them extend the class previously called `Plugin_Name_Options`.
+9. Add any CSS that you need to the `assets/css/` directory. The directory structure in place favors using SCSS files and SASS as a preprocessor, but you can set this directory up however you prefer. I keep any admin area styles in a separate css file with `-admin` appended to the name so that I can enqueue them separately.
+10. Add any JavaScript that you need to the `assets/js/` directory. There are two very basic js files with empty modules already in this directory, you can work from them or begin creating your own files as needed. Just like with the CSS files, I keep admin area JavaScript in a separate file iwth `-admin` appended to the name.
+11. Define any actions that you need in the main plugin file (it was previously named `wp-base-plugin.php`), or you can create your own initialization method that configures your actions.
+12. When you update your plugin's version, be sure to change the `$v_num` attribute of the Options class (previously called `Plugin_Name_Options`) to reflect the new version. This value is stored as an option in the WordPress database so that you can easily perform any maintenance necessary when a user upgrades the plugin.
+13. When you are ready to deploy your plugin to the WordPress Plugin Repository:  edit the `deploy.sh` file to reflect the SVN information for your WordPress plug-in and user account, then navigate to the folder for your plugin in Terminal, then enter `./deploy.sh`, and let the script work its magic. You will find some deployment notes at the end of this README.
+
 Functionality
 =============
 
@@ -19,7 +36,7 @@ public $prefix = 'plugin_name_';
 
 You can use the `$this->fix_name($slug)` method of the Plugin_Name class to append this prefix to any string.
 
-If you want to refer to the prefix in the Plugin_Name class, you can refernce it as `$this->options->prefix`.
+If you want to refer to the prefix in the Plugin_Name class, you can reference it as `$this->options->prefix`.
 
 **Plugin Debug Namespace**
 
@@ -62,14 +79,14 @@ In the future I may shift to using a slug for each capabilities key and mapping 
 
 **Options**
 
-Define options in the Plugin_Name_Options class by adding them to the associative array `$this->opts`.
+Define options in the Plugin_Name_Options class by adding them to the associative array `$this->options`.
 
 The options array will be JSON encoded and decoded when being stored and retrieved from the DB.
 
 ````php
 //set up options array
 private function set_options() {
-	$this->opts = array(
+	$this->options = array(
 		$this->prefix . 'version' => $this->v_num,
 		$this->prefix . 'options' => array(
 
@@ -83,7 +100,7 @@ private function set_options() {
 }
 ````
 
-To access any of the options in the Plugin_Name class, you can reference them like this:  `$this->options->opts['slug']`.
+To access any of the options in the Plugin_Name class, you can reference them like this:  `$this->options['slug']`.
 
 To access the current options values in the Plugin_Name class, you can reference the settings array:  `$this->settings['slug']`.
 
@@ -123,7 +140,7 @@ Here is a link to WordPress' example `readme.txt`:  http://wordpress.org/plugins
 
 So, you want to host your plug-in on GitHub but also have it available in the WordPress Plug-in Repository? No problem.
 
-I've included a version of the `deploy.sh` script found here:  https://gist.github.com/BFTrick/3767319
+I've included a version of [@BFTrick](https://github.com/BFTrick)'s' `deploy.sh` script found here:  https://gist.github.com/BFTrick/3767319
 
 All you need to do is edit the script to reflect the SVN information for your WordPress plug-in and then navigate to the folder for your plugin and type `./deploy.sh` and let the script work its magic.
 

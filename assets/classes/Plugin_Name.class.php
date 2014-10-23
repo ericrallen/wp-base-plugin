@@ -44,7 +44,7 @@
 			//get current options
 			public function get_settings() {
 				//get options, use defaults from plugin-options.php if they aren't found
-				$opts = get_option($this->fix_name('options'), $this->options->opts[$this->fix_name('options')]);
+				$opts = get_option($this->fix_name('options'), $this->options[$this->fix_name('options')]);
 
 				//decode the JSON string into an array and save it to $this->current
 				if(is_string($opts)) {
